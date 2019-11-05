@@ -1,0 +1,160 @@
+<body>
+
+	<head>
+		<!-- <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> -->
+		<script src="https://cdn.plot.ly/plotly-1.41.3.min.js"></script>
+		<script
+			src="https://www.editeyusercontent.com/preview/1c_hhRGD3bhwOtWwfBD8QofW9rD3T1kbe/code.js?pe=yikuansun2015@gmail.com"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+			integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+			integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+			crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+			integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+			crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+			integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+			crossorigin="anonymous"></script>
+			<link rel="stylesheet" type="text/css" href="css.css">
+	</head>
+
+	<body>
+		<br>
+		<br>
+
+		<div class="container" style="max-width: 1800 !important;">
+			<div class="row">
+				<div class="col-md-2">
+					<div class="row">
+						<h2 class="col-md-12"> Nonlinear Biobjective Solver </h2>
+					</div>
+					<br>
+					<div class="row">
+						<div class="col-md-12 form-group">
+							<label for="exampleFormControlTextarea4"> Objective functions:</label>
+							<textarea spellcheck="false" draggable="false" class="form-control" id="f1"
+								rows="2"></textarea>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 form-group">
+							<textarea spellcheck="false" draggable="false" class="form-control" id="f2"
+								rows="2"></textarea>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-12 form-group">
+							<label for="exampleFormControlTextarea4"> Subject to (constrains):</label>
+							<textarea spellcheck="false" draggable="false" class="form-control" id="constrains"
+								rows="3"></textarea>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-12 form-group">
+							<label for="exampleFormControlTextarea4"> Variable domains:</label>
+							<textarea spellcheck="false" draggable="false" class="form-control" id="domain"
+								rows="3"></textarea>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 form-group">
+							<label for="exampleFormControlTextarea4"> Initial Points (Optional):</label>
+							<textarea spellcheck="false" draggable="false" class="form-control" id="initPoints"
+								rows="1"></textarea>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 form-group">
+							<button type="button" onclick="CrearInstancia('')">Solve!</button>
+						</div>
+					</div>
+					
+
+					<div class="row">
+						<div class="col-md-12 form-group">
+							<label for="exampleFormControlTextarea4"> Instance name:</label>
+							<textarea spellcheck="false" draggable="false" class="form-control" id="nombreArchivo"
+								rows="1"></textarea>
+						</div>
+						<div class="col-md-12 form-group">
+							<button type="button" onclick="CrearInstancia('pornombre')">Run Instance!</button>
+							<button type="button" onclick="test()">Test</button>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<h2 > States </h2>
+							</div>
+							<div class="row">
+								<div id="css" style="width: 100%">
+									<ul id="StatesTable" class="responsive-table tablaEstados">
+									  <li class="table-header">
+										<div id ="search" class="col col-4 search">Searching</div>
+										<div id ="fsearch" class="col col-4 fsearch col-b" >Focused Search</div>
+										<div id ="rpresicion" class="col col-4 rpresicion">Precision Reached </div>
+									  </li>
+									</ul>
+								  </div>
+							</div>
+
+							En Upperbound: <input type="checkbox" id="myCheck">
+							<div id="graph" style="width:100%;height:500px;"></div>
+							<div class="row">
+								<div class="col-md-4 form-group">
+									<input type="button" id="continue" value="Continue" onclick="comandoEstado('continue')" />
+								</div>
+								<div class="col-md-4 form-group">
+									<input type="button" id= "pause" value="Pause" onclick="comandoEstado('pause')" />
+								</div>
+								<div class="col-md-4 form-group">
+									<input type="button" id="finish" value="Finish" onclick="comandoEstado('finish')" />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6 form-group">
+									<label for="exampleFormControlTextarea4"> Current y1:</label>
+									<textarea draggable="false" class="form-control" id="yvalue" rows="1"></textarea>
+								</div>
+								<div class="col-md-6 form-group">
+									<label for="exampleFormControlTextarea4"> Current y2:</label>
+									<textarea draggable="false" class="form-control" id="xvalue" rows="1"></textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<h2 class="col-md-12"> Points </h2>
+					<div id="css">
+							<ul id="pointtable" class="responsive-table">
+							  <li class="table-header">
+								<div class="col points">Points</div>
+								<div class="col points">Values</div>
+								<div class="col points">Image</div>
+							  </li>
+							</ul>
+						  </div>
+											  
+				</div>
+				<!-- <div class="col-md-2">
+					<div class="row">
+						<h2 class="col-md-12"> Records </h2>
+					</div>
+					<br>
+
+				</div> -->
+			</div>
+		</div>
+	</body>
+
+	<script src="js.js"></script>
+
+</body>
