@@ -1,18 +1,15 @@
 plotDiv = document.getElementById('graph');
-var paused = false;
-debug = document.getElementById("debug");
-random = document.getElementById("random");
-loadFile = document.getElementById("loadFile");
+checkbox = document.getElementById("myCheck");
 base = 'http://35.238.27.66:3000/tesis/';
 //filename = Math.floor((Math.random() * 100000) + 1);
-var filename = 123123;
+filename = 3333333;
 let f1 = document.querySelector("#f1");
 let f2 = document.querySelector("#f2");
 let constrains = document.querySelector("#constrains");
 let domain = document.querySelector("#domain");
 let initPoints = document.querySelector("#initPoints");
 let puntosTabla = [];
-var getDatos = '';
+
 f1.value = '-(25*(x1-2)^2+(x2-2)^2+(x3-1)^2+(x4-4)^2+(x5-1)^2) = z1'
 f2.value = 'x1^2+x2^2+x3^2+x4^2+x5^2+x6^2 = z2'
 domain.value = 'x1 in [ 0,10]\n'+
@@ -33,360 +30,29 @@ constrains.value = '-(x1+x2-2) <= 0\n'+
 const Http = new XMLHttpRequest();
 const Httpp = new XMLHttpRequest();
 const Httppp = new XMLHttpRequest();
-var setInstance = '';
-var setInstanceByName = '';
+const getDatos = base + 'getDatos/' + filename;
+const setInstance = base + 'crearInstancia/' + filename;
+const setInstanceByName = base + 'crearInstanciaPorNombre/' + filename;
 var cont = 0;
 
 function CrearInstancia(tipo) {
-    if(random.checked){
-        filename = Math.floor((Math.random() * 1000000) + 1);
-    }
-    else{
-        filename = document.querySelector("#filenameinput").value;
-    }
-    console.log('Instance name: '+filename);
     
-    getDatos = base + 'getDatos/' + filename
-    setInstance = base + 'crearInstancia/' + filename;
-    setInstanceByName = base + 'crearInstanciaPorNombre/' + filename;
-    
-    console.log(filename);
-
-    if(!debug.checked){
-        if (tipo == 'pornombre') {
-            nombreArchivo = document.getElementById("nombreArchivo").value;
-            Httpp.open("POST", setInstanceByName);
-            Httpp.setRequestHeader("Content-Type", "application/json");
-            let data = {nombreArchivo}
-            Httpp.send(JSON.stringify(data));
-        }
-        else{
-            Httpp.open("GET", setInstance);
-            Httpp.send();
-        }
-        Httpp.onreadystatechange = function () {
-            if (Httpp.readyState == 4 && Httpp.status == 200) {
-                (function (data) {
-                    console.log("mal");
-                    getDatosIniciales();
-                })(Httpp.responseText);
-            }
-        }
-    }
-    else{
-        getDatosIniciales();
-    }
-    
-    
-}
-
-function test() {
-    console.log(plotDiv.data);
-    
-}
-function addPoint(x, y, trace) {
-    Plotly.extendTraces(plotDiv, {
-        x: [
-            [x]
-        ],
-        y: [
-            [y]
-        ]
-    }, [trace]);
-}
-
-function zonaSeleccionada(data) {
-
-    console.log(data);
-    
-    Httppp.open("POST", "http://35.238.27.66:3000/tesis/seleccionarZona");
-    Httppp.setRequestHeader("Content-Type", "application/json");
-    Httppp.send(JSON.stringify(data));
-    Httppp.onreadystatechange = function () {
-        if (Httppp.readyState == 4 && Httppp.status == 200) {
-            (function (data) {
-                console.log(data);
-            })(Httppp.responseText);
-        }
-    }
-}
-
-function save() {
-    comandoEstado('save '+filename+'save.state')
-    // Httppp.open("GET", "http://35.238.27.66:3000/savestate/"+filename+"save.state");
-    // Httppp.setRequestHeader("Content-Type", "application/json");
-    // Httppp.send();
-    // Httppp.onreadystatechange = function () {
-    //     if (Httppp.readyState == 4 && Httppp.status == 200) {
-    //         (function (data) {
-    //             console.log(data);
-    //         })(Httppp.responseText);
-    //     }
+    // if (tipo == 'pornombre') {
+    //     nombreArchivo = document.getElementById("nombreArchivo").value;
+    //     Httpp.open("POST", setInstanceByName);
+    //     Httpp.setRequestHeader("Content-Type", "application/json");
+    //     let data = {nombreArchivo}
+    //     Httpp.send(JSON.stringify(data));
     // }
-}
-
-function download() {
-    // Httppp.open("GET", "http://35.238.27.66:3000/download/"+filename+"save.state");
-    // Httppp.setRequestHeader("Content-Type", "application/json");
-    // Httppp.send();
-    // Httppp.onreadystatechange = function () {
-    //     if (Httppp.readyState == 4 && Httppp.status == 200) {
-    //         (function (data) {
-    //             console.log(data);
-    //         })(Httppp.responseText);
-    //     }
+    // else{
+    //     Httpp.open("GET", setInstance);
+    //     Httpp.send();
     // }
-}
-
-
-
-function getData(data) {
-    a = JSON.parse(data);
-    let txt = a.respuesta;
-    traces = txt.split('\n');
-    traces[1] = traces[1].replace('"', '');
-    traces[1] = traces[1].replace('(', '');
-    traces[1] = traces[1].replace(')', '');
-    traces[1] = traces[1].replace('[', '');
-    traces[1] = traces[1].replace(']', '');
-    // console.log(traces[1]);
-    trace1 = traces[0].split(',');
-    trace2 = traces[1].split(',');
-    // console.log(trace2);
-   
-    t1 = limpiar(trace1);
-    t2 = limpiar(trace2);
-    // console.log(t2);
-    // console.log(t1);
-    let solution = a.solution;
-    let state = a.state;
-    console.log(solution);
-    return { t1, t2, solution, state }
-}
-
-function limpiar(trace) {
-    x = [];
-    y = [];
-    cont = 0;
-    xx = 0;
-    yy = 0;
-    for (let i = 0; i < trace.length; i++) {
-        let text = trace[i];
-        text = text.replace('"', '');
-        text = text.replace('(', '');
-        text = text.replace(')', '');
-        text = text.replace('[', '');
-        text = text.replace(']', '');
-        
-        if (parseFloat(text) || parseFloat(text) == 0) {
-            // console.log(i,text);
-            // console.log('parsed:'+ parseFloat(text));
-            if (cont == 0) {
-                x[xx] = parseFloat(text);
-                xx++;
-                cont = 1;
-            }
-            else {
-                y[yy] = parseFloat(text);
-                yy++;
-                cont = 0;
-            }
-        }
-    }
-    let array = { x, y };
-    return array;
-}
-function comandoEstado(comando) {
-    Httpp.open("POST", "http://35.238.27.66:3000/tesis/comando");
-    Httpp.setRequestHeader("Content-Type", "application/json");
-    let data = { comando, filename };
-    Httpp.send(JSON.stringify(data));
-    Httpp.onreadystatechange = function () {
-        if (Httpp.readyState == 4 && Httpp.status == 200) {
-            (function (data) {
-                console.log(data);
-            })(Httpp.responseText);
-        }
-    }
-}
-
-function addPointToList(point) {
-    pointtable = document.getElementById("pointtable");
-    newlistitem = document.createElement("li");
-    newlistitem.setAttribute("class", "table-row");
-    newdiv = document.createElement("div");
-    newdiv.setAttribute("class", "col");
-    newdiv.innerHTML = point;
-
-    pointtable.appendChild(newlistitem);
-    newlistitem.appendChild(newdiv);
-}
-
-
-function fixdown(digits) {
-    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
-        m = this.toString().match(re);
-    return m ? parseFloat(m[1]) : this.valueOf();
-}
-
-function newDivUl(index,data,tipo) {
-    pointtable = document.getElementById("pointtable");
-    li = pointtable.children[index+1];
-      
-
-    if(tipo == 'value'){
-        if(li.children[1]){
-            li.children[1].innerHTML = data;
-        }
-        else{
-            let newdiv = document.createElement("div");
-            newdiv.setAttribute("class", "col");
-            newdiv.innerHTML = data;
-            li.appendChild(newdiv);
-        }
-    }
-    if(tipo == 'image'){
-        if(li.children[2]){
-            li.children[2].innerHTML = data;
-        }
-        else{
-            let newdiv = document.createElement("div");
-            newdiv.setAttribute("class", "col");
-            newdiv.innerHTML = data;
-            li.appendChild(newdiv);
-        }
-    }
-    
-}
-
-function project( p, a, b ) {
-    
-    var atob = { x: b.x - a.x, y: b.y - a.y };
-    var atop = { x: p.x - a.x, y: p.y - a.y };
-    var len = atob.x * atob.x + atob.y * atob.y;
-    var dot = atop.x * atob.x + atop.y * atob.y;
-    var t = Math.min( 1, Math.max( 0, dot / len ) );
-
-    dot = ( b.x - a.x ) * ( p.y - a.y ) - ( b.y - a.y ) * ( p.x - a.x );
-    let point =  {
-        x: a.x + atob.x * t,
-        y: a.y + atob.y * t
-    }
-    //console.log('point:' + point.x,point.y);
-    
-    return point;
-}
-
-function searchSegment(point,data,dataType){
-    
-    for (let i = 0; i < data.x.length-1; i++) {
-        const a = {x:data.x[i],y:data.y[i]};
-        const b = {x:data.x[i+1],y:data.y[i+1]};
-        if(dataType == 'x'){
-            if(point.x > a.x && point.x < b.x){
-                return project(point,a,b);
-            }
-        }
-        else{
-            if(point.y < a.y && point.y > b.y){
-                return project(point,a,b);
-            }
-        }
-    }
-}
-
-
-function betweenTwoPoints(point1,point2){
-    console.log('distancia:');
-    
-    console.log(point1,point2);
-    
-    var a = Math.abs(point1.x - point2.x);
-    var b = Math.abs(point1.y - point2.y);
-    var c = Math.sqrt( a*a + b*b );
-    return c;
-
-}
-
-function setValues(array) {
-    if(array){
-        pointtable = document.getElementById("pointtable");
-        //console.log(pointtable);
-        
-        array = array.replace('"','')
-        array = array.split('\n');
-        array.splice(array.length-1,1);
-        // console.log('setvalues');
-        // console.log(array);
-        // console.log(puntosTabla);
-        for (let i = 0; i < array.length-2; i=i+3) {
-            let point = array[i];
-            for (let j = 0; j < puntosTabla.length; j++) {
-                let point1 = puntosTabla[j].x+' '+puntosTabla[j].y;
-                if (point == point1) {
-                    let value = array[i+1];
-                    newDivUl(j,value,'value');
-                    let image = array[i+2];
-                    newDivUl(j,image,'image');
-                }
-            }
-        }
-    }
-}
-
-function checkState(state) {
-    let search = document.querySelector("#search");
-    let fsearch = document.querySelector("#fsearch");
-    let rprecision = document.querySelector("#rpresicion");
-    let cont = document.querySelector("#continue");
-    let pause = document.querySelector("#pause");
-    let finish = document.querySelector("#finish");
-
-
-    search.classList.remove('actual');
-    fsearch.classList.remove('actual');
-    rprecision.classList.remove('actual');
-    cont.classList.remove('actual');
-    pause.classList.remove('actual');
-    finish.classList.remove('actual');
-
-    paused = false;
-    state = state.split(',');
-    if (state[0] == 'SEARCH') {
-        search.classList.add('actual');
-        cont.classList.add('actual');
-        rprecision.innerHTML = 'PRESICION: ' + state[1];
-    }
-    if (state[0] == 'FOCUS_SEARCH') {
-        fsearch.classList.add('actual');
-        cont.classList.add('actual');
-        rprecision.innerHTML = 'PRESICION: ' + state[1];
-    }
-    if (state[0] == 'REACHED_PRECISION') {
-        rprecision.classList.add('actual');
-        rprecision.innerHTML = 'REACHED PRECISION: ' + state[1];
-    }
-    if (state[0] == 'STAND_BY') {
-        pause.classList.add('actual');
-        paused = true;
-    }
-    if (state[0] == 'FINISHED') {
-        finish.classList.add('actual');
-        pause.disabled = true;
-        cont.disabled = true;
-        paused = true;
-    }
-    
-    
-}
-
-function load() {
-    let files = loadFile.files
-    console.log(files);
-}
-
-function getDatosIniciales() {
-    Http.open("GET", getDatos);
+    // Httpp.onreadystatechange = function () {
+    //     if (Httpp.readyState == 4 && Httpp.status == 200) {
+    //         (function (data) {
+                //console.log(data);
+                Http.open("GET", getDatos);
                 Http.send();
                 Http.onreadystatechange = function () {
                     if (Http.readyState == 4 && Http.status == 200) {
@@ -441,8 +107,11 @@ function getDatosIniciales() {
                                     modeBarButtons:
                                         [
                                             ['zoom2d'],
-                                            ['select2d'],
+                                            ['zoomIn2d'],
+                                            ['zoomOut2d'],
                                             ['autoScale2d'],
+                                            ['select2d'],
+                                            ['toImage'],
                                             ['pan2d'],
                                             ['toggleHover']
                                         ]
@@ -451,7 +120,7 @@ function getDatosIniciales() {
 
                             plotDiv.on('plotly_relayout',
                                 function (eventdata) {
-                                    //console.log(eventdata);
+                                    console.log(eventdata);
                                     if (eventdata['yaxis.range[1]']) {
                                         let x = [];
                                         let y = [];
@@ -477,8 +146,7 @@ function getDatosIniciales() {
 
                             Plotly.d3.select(".plotly").on('click', function (d, i) {
 
-                                if (paused) {
-                                    
+
                                 var e = Plotly.d3.event; e.layerX, e.layerY
                                 
                                 if(Plotly.d3.event.srcElement == '[object SVGRectElement]'){
@@ -486,29 +154,30 @@ function getDatosIniciales() {
 
                                     let x = document.getElementById("xvalue").value;
                                     let y = document.getElementById("yvalue").value;
+                                    console.log('point y:'+y);
+                                    
 
                                     let point = {x:x,y:y};
                                     console.log('enviado =' + point.x,point.y);
 
                                     let proyectionUpper = searchSegment(point,plotDiv.data[0],'x');
                                     let proyectionUpperY = searchSegment(point,plotDiv.data[0],'y');
-                                    //console.log('proyextion y');
-                                    //console.log(proyectionUpperY);
+                                    console.log('proyextion y');
+                                    console.log(proyectionUpperY);
                                     
                                     
-                                    // let distx = betweenTwoPoints(point,proyectionUpper);
-                                    // let disty = betweenTwoPoints(point,proyectionUpperY);
-                                    // //console.log(distx,disty);
+                                    let distx = betweenTwoPoints(point,proyectionUpper);
+                                    let disty = betweenTwoPoints(point,proyectionUpperY);
+                                    console.log(distx,disty);
                                     
-                                    // if(distx > disty ){
-                                    //     proyectionUpper = proyectionUpperY;
-                                    // }
+                                    if(distx > disty ){
+                                        proyectionUpper = proyectionUpperY;
+                                    }
                                     console.log('proyectionUpper'+proyectionUpper.x,proyectionUpper.y);
                                     
                                     let proyectionLower = searchSegment(point,plotDiv.data[1],'x');
                                     console.log('proyectionLower'+proyectionLower.x,proyectionLower.y);
-                                    console.log('point:'+x,y);
-                                    
+
                                     let disY = Math.abs(Math.abs(point.y) - Math.abs(proyectionUpper.y));
                                     let disX = Math.abs(Math.abs(point.x) - Math.abs(proyectionUpper.x));
                                     let axisX = Math.abs(Math.abs(plotDiv.layout.xaxis.range[0]) - Math.abs(plotDiv.layout.xaxis.range[1]));
@@ -518,18 +187,17 @@ function getDatosIniciales() {
                                     if(disX < axisX*0.02 && disY < axisY * 0.02)
                                     upper = true;
                                     
-                                    //console.log(upper);
+                                    console.log(upper);
                                     
-
+                                    console.log(proyectionUpper.y,proyectionLower.y,y);
+                                    
                                     if( (proyectionUpper.y > y && proyectionLower.y < y ) || upper){
                                         
                                     if (upper) {
                                         x = proyectionUpper.x;
                                         y = proyectionUpper.y;
-                                        let puntito = {x,y};
+
                                         addPoint(x, y, 2);
-                                        puntosTabla.push({x,y});
-                                        console.log(puntosTabla);
                                         
                                         addPointToList(Math.floor(x * 100) / 100 + ';' + Math.floor(y * 100) / 100);
                                         
@@ -540,15 +208,17 @@ function getDatosIniciales() {
                                         Httpp.onreadystatechange = function () {
                                             if (Httpp.readyState == 4 && Httpp.status == 200) {
                                                 (function (data) {
-                                                    // console.log('holas');
+                                                    console.log('holas');
+                                                    
                                                     console.log(data);
                                                 })(Httpp.responseText);
                                             }
                                         }
                                     }
                                     else {
+                                        console.log("FOCUS SERASH");
+                                        
                                         addPoint(x, y, 2);
-                                        puntosTabla.push({x,y});
                                         addPointToList(Math.floor(x * 100) / 100 + ';' + Math.floor(y * 100) / 100);
 
                                         Httpp.open("POST", "http://35.238.27.66:3000/tesis/focus");
@@ -566,7 +236,6 @@ function getDatosIniciales() {
 
                                 }
                             }
-                                }
 
                             });
 
@@ -660,6 +329,311 @@ function getDatosIniciales() {
                         })(Http.responseText);
                     }
                 }
+    //         })(Httpp.responseText);
+    //     }
+    // }
+}
+
+function changeName() {
+    filenameinput
+}
+function addPoint(x, y, trace) {
+    Plotly.extendTraces(plotDiv, {
+        x: [
+            [x]
+        ],
+        y: [
+            [y]
+        ]
+    }, [trace]);
+}
+
+function zonaSeleccionada(data) {
+
+    // xmlhttp.open("POST", "http://35.238.27.66:3000/tesis/seleccionarZona");
+    // xmlhttp.setRequestHeader("Content-Type", "application/json");
+    // xmlhttp.send(JSON.stringify(hola));
+
+    Httppp.open("POST", "http://35.238.27.66:3000/tesis/seleccionarZona");
+    Httppp.setRequestHeader("Content-Type", "application/json");
+    Httppp.send(JSON.stringify(data));
+    Httppp.onreadystatechange = function () {
+        if (Httppp.readyState == 4 && Httppp.status == 200) {
+            (function (data) {
+                console.log(data);
+            })(Httppp.responseText);
+        }
+    }
+}
+
+
+// Http.open("GET", getDatos);
+// Http.send();
+// Http.onreadystatechange = function () {
+//     if (Http.readyState == 4 && Http.status == 200) {
+//         (function (data) {
+//             document.cont = 1;
+//             array = getData(data);
+//             t1 = array.t1;
+//             t2 = array.t2;
+//             Plotly.plot('graph', [{
+//                 name: 'Lower Bound',
+//                 x: t1.x,
+//                 y: t1.y
+//             }, {
+//                 name: 'Upper Bound',
+//                 x: t2.x,
+//                 y: t2.y,
+//             }])
+
+//             setInterval(function () {
+//                 Httpp.open("GET", getDatos);
+//                 Httpp.send();
+//                 Httpp.onreadystatechange = function () {
+//                     if (Httpp.readyState == 4 && Httpp.status == 200) {
+//                         (function (data) {
+//                             array = getData(data);
+//                             t1 = array.t1;
+//                             t2 = array.t2;
+//                             var updateObj = {
+//                                 x: [t1.x],
+//                                 y: [t1.y]
+//                             };
+//                             console.log(updateObj.y);
+//                             Plotly.restyle('graph', updateObj, [0]);
+//                             var updateObj = {
+//                                 x: [t2.x],
+//                                 y: [t2.y]
+//                             };
+//                             Plotly.restyle('graph', updateObj, [1]);
+//                         })(Httpp.responseText);
+//                     }
+//                 }
+
+
+//             }, 1500);
+
+//         })(Http.responseText);
+//     }
+// }
+
+
+
+
+
+function getData(data) {
+    a = JSON.parse(data);
+    let txt = a.respuesta;
+    traces = txt.split('\n');
+    trace1 = traces[0].split(',');
+    trace2 = traces[1].split(',');
+    t1 = limpiar(trace1);
+    t2 = limpiar(trace2);
+    let solution = a.solution;
+    let state = a.state;
+    console.log(solution);
+    return { t1, t2, solution, state }
+}
+
+function limpiar(trace) {
+    x = [];
+    y = [];
+    cont = 0;
+    xx = 0;
+    yy = 0;
+    for (let i = 0; i < trace.length; i++) {
+        let text = trace[i];
+        text = text.replace('"', '');
+        text = text.replace('(', '');
+        text = text.replace(')', '');
+        text = text.replace('[', '');
+        text = text.replace(']', '');
+        if (parseFloat(text)) {
+            if (cont == 0) {
+                x[xx] = parseFloat(text);
+                xx++;
+                cont = 1;
+            }
+            else {
+                y[yy] = parseFloat(text);
+                yy++;
+                cont = 0;
+            }
+        }
+    }
+    let array = { x, y };
+    return array;
+}
+function comandoEstado(comando) {
+    Httpp.open("POST", "http://35.238.27.66:3000/tesis/comando");
+    Httpp.setRequestHeader("Content-Type", "application/json");
+    let data = { comando, filename };
+    Httpp.send(JSON.stringify(data));
+    Httpp.onreadystatechange = function () {
+        if (Httpp.readyState == 4 && Httpp.status == 200) {
+            (function (data) {
+                console.log(data);
+            })(Httpp.responseText);
+        }
+    }
+}
+
+function addPointToList(point) {
+    pointtable = document.getElementById("pointtable");
+    newlistitem = document.createElement("li");
+    newlistitem.setAttribute("class", "table-row");
+    newdiv = document.createElement("div");
+    newdiv.setAttribute("class", "col");
+    newdiv.innerHTML = point;
+
+    pointtable.appendChild(newlistitem);
+    newlistitem.appendChild(newdiv);
+}
+
+
+function fixdown(digits) {
+    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
+        m = this.toString().match(re);
+    return m ? parseFloat(m[1]) : this.valueOf();
+}
+
+function newDivUl(index,data,tipo) {
+    pointtable = document.getElementById("pointtable");
+    li = pointtable.children[index+1];
+      
+
+    if(tipo == 'value'){
+        if(li.children[1]){
+            li.children[1].innerHTML = data;
+        }
+        else{
+            let newdiv = document.createElement("div");
+            newdiv.setAttribute("class", "col");
+            newdiv.innerHTML = data;
+            li.appendChild(newdiv);
+        }
+    }
+    if(tipo == 'image'){
+        if(li.children[2]){
+            li.children[2].innerHTML = data;
+        }
+        else{
+            let newdiv = document.createElement("div");
+            newdiv.setAttribute("class", "col");
+            newdiv.innerHTML = data;
+            li.appendChild(newdiv);
+        }
+    }
+    
+}
+
+function project( p, a, b ) {
+    
+    var atob = { x: b.x - a.x, y: b.y - a.y };
+    var atop = { x: p.x - a.x, y: p.y - a.y };
+    var len = atob.x * atob.x + atob.y * atob.y;
+    var dot = atop.x * atob.x + atop.y * atob.y;
+    var t = Math.min( 1, Math.max( 0, dot / len ) );
+
+    dot = ( b.x - a.x ) * ( p.y - a.y ) - ( b.y - a.y ) * ( p.x - a.x );
+    let point =  {
+        x: a.x + atob.x * t,
+        y: a.y + atob.y * t
+    }
+    console.log('point:' + point.x,point.y);
+    
+    return point;
+}
+
+function searchSegment(point,data,dataType){
+    
+    for (let i = 0; i < data.x.length-1; i++) {
+        const a = {x:data.x[i],y:data.y[i]};
+        const b = {x:data.x[i+1],y:data.y[i+1]};
+        if(dataType == 'x'){
+            if(point.x > a.x && point.x < b.x){
+                return project(point,a,b);
+            }
+        }
+        else{
+            if(point.y < a.y && point.y > b.y){
+                return project(point,a,b);
+            }
+        }
+    }
+}
+
+
+function betweenTwoPoints(point1,point2){
+    console.log('distancia:');
+    
+    console.log(point1,point2);
+    
+    var a = Math.abs(point1.x - point2.x);
+    var b = Math.abs(point1.y - point2.y);
+    var c = Math.sqrt( a*a + b*b );
+    return c;
+
+}
+
+function setValues(array) {
+    if(array){
+        array = array.split('\n');
+        console.log('setvalues');
+        console.log(array);
+        
+        
+        for (let i = 0; i < array.length-1; i=i+2) {
+            const value = array[i];
+            newDivUl(i/2,value,'value');
+            const image = array[i+1];
+            newDivUl(i/2,image,'image');
+        }
+    }
+}
+
+function checkState(state) {
+    let search = document.querySelector("#search");
+    let fsearch = document.querySelector("#fsearch");
+    let rprecision = document.querySelector("#rpresicion");
+    let cont = document.querySelector("#continue");
+    let pause = document.querySelector("#pause");
+    let finish = document.querySelector("#finish");
+
+
+    search.classList.remove('actual');
+    fsearch.classList.remove('actual');
+    rprecision.classList.remove('actual');
+    cont.classList.remove('actual');
+    pause.classList.remove('actual');
+    finish.classList.remove('actual');
+
+
+    state = state.split(',');
+    if (state[0] == 'SEARCH') {
+        search.classList.add('actual');
+        cont.classList.add('actual');
+        rprecision.innerHTML = 'PRESICION: ' + state[1];
+    }
+    if (state[0] == 'FOCUS_SEARCH') {
+        fsearch.classList.add('actual');
+        cont.classList.add('actual');
+        rprecision.innerHTML = 'PRESICION: ' + state[1];
+    }
+    if (state[0] == 'REACHED_PRECISION') {
+        rprecision.classList.add('actual');
+        rprecision.innerHTML = 'REACHED PRECISION: ' + state[1];
+    }
+    if (state[0] == 'STAND_BY') {
+        pause.classList.add('actual');
+    }
+    if (state[0] == 'FINISHED') {
+        finish.classList.add('actual');
+        pause.disabled = true;
+        cont.disabled = true;
+    }
+    
+    
 }
 
 

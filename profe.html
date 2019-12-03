@@ -18,7 +18,7 @@
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
 			integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
 			crossorigin="anonymous"></script>
-		<link rel="stylesheet" type="text/css" href="css.css">
+			<link rel="stylesheet" type="text/css" href="css.css">
 	</head>
 
 	<body>
@@ -70,8 +70,7 @@
 					</div>
 					<div class="row">
 						<div class="col-md-12 form-group">
-							<label for="exampleFormControlTextarea4"> Filename: Random?<input type="checkbox"
-									id="random"></label>
+							<label for="exampleFormControlTextarea4"> Filename:</label>
 							<textarea spellcheck="false" draggable="false" class="form-control" id="filenameinput"
 								rows="1"></textarea>
 						</div>
@@ -79,9 +78,9 @@
 					<div class="row">
 						<div class="col-md-12 form-group">
 							<button type="button" onclick="CrearInstancia('')">Solve!</button>
-							Debug?: <input type="checkbox" id="debug">
 						</div>
 					</div>
+					
 
 					<div class="row">
 						<div class="col-md-12 form-group">
@@ -91,67 +90,7 @@
 						</div>
 						<div class="col-md-12 form-group">
 							<button type="button" onclick="CrearInstancia('pornombre')">Run Instance!</button>
-							<button type="button" onclick="load()">Test</button>
-						</div>
-					</div>
-
-					<div class="row">
-						<div class="col-md-12 form-group">
-							<form enctype="multipart/form-data" id="formuploadajax" method="post">
-								<input type="file" id="archivo1" name="loadFile" />
-								<input type="submit" value="Submit" />
-							</form>
-							<div id="mensaje"></div>
-							<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
-							<script>
-								$(function () {
-									$("#formuploadajax").on("submit", function (e) {
-										e.preventDefault();
-										var f = $(this);
-										console.log(filename);
-
-										var formData = new FormData(document.getElementById("formuploadajax"));
-										formData.append("dato", "valor");
-										//formData.append(f.attr("name"), $(this)[0].files[0]);
-										$.ajax({
-											url: "http://35.238.27.66:3000/tesis/load",
-											type: "post",
-											dataType: "html",
-											data: formData,
-											cache: false,
-											contentType: false,
-											processData: false
-										})
-											.done(function (res) {
-												alert("holas");
-												$("#mensaje").html("Respuesta: " + res);
-											});
-									});
-								});
-							</script>
-							<button type="button" onclick="save()">Save</button>
-							<button id="download">Send AJAX Request and download file</button>
-
-							<script>
-								const url = "http://35.238.27.66:3000/tesis/download/"+filename+"save.state"
-								var req = new XMLHttpRequest();
-								req.open("GET", url , true);
-								req.responseType = "blob";
-
-								req.onload = function (event) {
-									var blob = req.response;
-									console.log(blob.size);
-									var link = document.createElement('a');
-									link.href = window.URL.createObjectURL(blob);
-									link.download = "Dossier_" + new Date() + ".pdf";
-									link.click();
-								};
-
-								req.send();
-
-							</script>
-
-
+							<button type="button" onclick="test()">Test</button>
 						</div>
 					</div>
 				</div>
@@ -159,28 +98,28 @@
 					<div class="row">
 						<div class="col-md-12">
 							<div class="row">
-								<h2> States </h2>
+								<h2 > States </h2>
 							</div>
 							<div class="row">
 								<div id="css" style="width: 100%">
 									<ul id="StatesTable" class="responsive-table tablaEstados">
-										<li class="table-header">
-											<div id="search" class="col col-4 search">Searching</div>
-											<div id="fsearch" class="col col-4 fsearch col-b">Focused Search</div>
-											<div id="rpresicion" class="col col-4 rpresicion">Presicion Reached </div>
-										</li>
+									  <li class="table-header">
+										<div id ="search" class="col col-4 search">Searching</div>
+										<div id ="fsearch" class="col col-4 fsearch col-b" >Focused Search</div>
+										<div id ="rpresicion" class="col col-4 rpresicion">Precision Reached </div>
+									  </li>
 									</ul>
-								</div>
+								  </div>
 							</div>
 
+							En Upperbound: <input type="checkbox" id="myCheck">
 							<div id="graph" style="width:100%;height:500px;"></div>
 							<div class="row">
 								<div class="col-md-4 form-group">
-									<input type="button" id="continue" value="Continue"
-										onclick="comandoEstado('continue')" />
+									<input type="button" id="continue" value="Continue" onclick="comandoEstado('continue')" />
 								</div>
 								<div class="col-md-4 form-group">
-									<input type="button" id="pause" value="Pause" onclick="comandoEstado('pause')" />
+									<input type="button" id= "pause" value="Pause" onclick="comandoEstado('pause')" />
 								</div>
 								<div class="col-md-4 form-group">
 									<input type="button" id="finish" value="Finish" onclick="comandoEstado('finish')" />
@@ -202,15 +141,15 @@
 				<div class="col-md-4">
 					<h2 class="col-md-12"> Points </h2>
 					<div id="css">
-						<ul id="pointtable" class="responsive-table">
-							<li class="table-header">
+							<ul id="pointtable" class="responsive-table">
+							  <li class="table-header">
 								<div class="col points">Points</div>
 								<div class="col points">Values</div>
 								<div class="col points">Image</div>
-							</li>
-						</ul>
-					</div>
-
+							  </li>
+							</ul>
+						  </div>
+											  
 				</div>
 				<!-- <div class="col-md-2">
 					<div class="row">
@@ -223,6 +162,6 @@
 		</div>
 	</body>
 
-	<script src="js.js"></script>
+	<script src="js2.js"></script>
 
 </body>
