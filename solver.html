@@ -34,13 +34,22 @@
 					<br>
 					<div class="row">
 						<div class="col-md-12 form-group">
-							<label for="exampleFormControlTextarea4"> Objective functions:</label>
+							<label for="exampleFormControlTextarea4"> Objective function f1:</label>
+							Max?<input type="checkbox" id="maxf1">
+							<!-- <div class="can-toggle demo-rebrand-1">
+								<input id="d" type="checkbox" unchecked>
+								<label for="d">
+								  <div class="can-toggle__switch" data-checked="Max" data-unchecked="Min"></div>
+								</label>
+							  </div> -->
 							<textarea spellcheck="false" draggable="false" class="form-control" id="f1"
 								rows="2"></textarea>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col-md-12 form-group">
+							<label for="exampleFormControlTextarea4"> Objective function f2:</label>
+							Max?<input type="checkbox" id="maxf2">
 							<textarea spellcheck="false" draggable="false" class="form-control" id="f2"
 								rows="2"></textarea>
 						</div>
@@ -61,29 +70,29 @@
 								rows="3"></textarea>
 						</div>
 					</div>
-					<div class="row">
+					<!-- <div class="row">
 						<div class="col-md-12 form-group">
 							<label for="exampleFormControlTextarea4"> Initial Points (Optional):</label>
 							<textarea spellcheck="false" draggable="false" class="form-control" id="initPoints"
 								rows="1"></textarea>
 						</div>
-					</div>
-					<div class="row">
+					</div> -->
+					<div class="row" style="display: none;">
 						<div class="col-md-12 form-group">
 							<label for="exampleFormControlTextarea4"> Filename: Random?<input type="checkbox"
-									id="random"></label>
+									id="random" checked></label>
 							<textarea spellcheck="false" draggable="false" class="form-control" id="filenameinput"
 								rows="1"></textarea>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col-md-12 form-group">
-							<button type="button" onclick="CrearInstancia('')">Solve!</button>
-							Debug?: <input type="checkbox" id="debug">
+							<button type="button" onclick="CrearInstancia('')" style="width: 100%;height: 30px">Solve!</button>
+							<input type="checkbox" id="debug" style="display: none;">
 						</div>
 					</div>
 
-					<div class="row">
+					<!-- <div class="row">
 						<div class="col-md-12 form-group">
 							<label for="exampleFormControlTextarea4"> Instance name:</label>
 							<textarea spellcheck="false" draggable="false" class="form-control" id="nombreArchivo"
@@ -91,30 +100,44 @@
 						</div>
 						<div class="col-md-12 form-group">
 							<button type="button" onclick="CrearInstancia('pornombre')">Run Instance!</button>
-							<button type="button" onclick="load()">Test</button>
+							
+							<button type="button" onclick="test()">Test</button>
 						</div>
-					</div>
-
+					</div> -->
 					<div class="row">
+						
 						<div class="col-md-12 form-group">
-							<form enctype="multipart/form-data" id="formuploadajax" method="post">
+							<p style="font-weight: bold;">Save instance</p>
+							<button type="button" onclick="save()" style="width: 100%;height: 30px;">Save</button>
+							<a rel="nofollow" id="download" href="#" class="automatic" style="display:none">Dowload save file</a>
+						</div>
+						
+					</div>
+					<div class="row">
+						<div class="col-md-12 form-group" style="display: ruby-text-container;">
+							<p style="font-weight: bold;">Load instance(first select a load file)</p>
+
+							<form enctype="multipart/form-data" id="formuploadajax" method="post" style="display: inline-grid;">
 								<input type="file" id="archivo1" name="loadFile" />
-								<input type="submit" value="Submit" />
+								<input type="submit" value="Load Instance" />
 							</form>
-							<div id="mensaje"></div>
 							<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 							<script>
 								$(function () {
 									$("#formuploadajax").on("submit", function (e) {
+										loggerDiv('Loading instance...');
 										e.preventDefault();
 										var f = $(this);
-										console.log(filename);
+										filename = Math.floor((Math.random() * 1000000) + 1);
+										console.log("FILENAMELOAD",filename);
 
+										
 										var formData = new FormData(document.getElementById("formuploadajax"));
-										formData.append("dato", "valor");
+										formData.append("filename", filename);
+
 										//formData.append(f.attr("name"), $(this)[0].files[0]);
 										$.ajax({
-											url: "http://35.238.27.66:3000/tesis/load",
+											url: "http://35.222.211.24:3000/tesis/load",
 											type: "post",
 											dataType: "html",
 											data: formData,
@@ -123,14 +146,16 @@
 											processData: false
 										})
 											.done(function (res) {
-												alert("holas");
-												$("#mensaje").html("Respuesta: " + res);
+												setTimeout(() => {
+													setULRS();
+													getDatosIniciales();
+													console.log("filename afer load",filename);
+												}, 1000);
 											});
 									});
 								});
 							</script>
-							<button type="button" onclick="save()">Save</button>
-							<button id="download">Send AJAX Request and download file</button>
+							
 
 							<script>
 								const url = "http://35.238.27.66:3000/tesis/download/"+filename+"save.state"
@@ -166,7 +191,9 @@
 									<ul id="StatesTable" class="responsive-table tablaEstados">
 										<li class="table-header">
 											<div id="search" class="col col-4 search">Searching</div>
-											<div id="fsearch" class="col col-4 fsearch col-b">Focused Search</div>
+											<div id="fsearch" class="col col-4 fsearch col-b">Focused Search 
+												<input type="button" id="kill" value="Stop RPM" onclick="comandoEstado('rpm_stop')" />
+											</div>
 											<div id="rpresicion" class="col col-4 rpresicion">Presicion Reached </div>
 										</li>
 									</ul>
@@ -184,20 +211,26 @@
 								</div>
 								<div class="col-md-4 form-group">
 									<input type="button" id="finish" value="Finish" onclick="comandoEstado('finish')" />
+									<!-- <input type="button" id="asd" value="Finish" onclick="loggerDiv('finish')" /> -->
 								</div>
 							</div>
 							<div class="row">
+								<div class="col-md-12 form-group">
+									<section id="lolo"></section>
+								</div>
+								
 								<div class="col-md-6 form-group">
-									<label for="exampleFormControlTextarea4"> Current y1:</label>
-									<textarea draggable="false" class="form-control" id="yvalue" rows="1"></textarea>
+									<label for="exampleFormControlTextarea4"> Current y1(x):</label>
+									<textarea draggable="false" class="form-control" id="xvalue" rows="1"></textarea>
 								</div>
 								<div class="col-md-6 form-group">
-									<label for="exampleFormControlTextarea4"> Current y2:</label>
-									<textarea draggable="false" class="form-control" id="xvalue" rows="1"></textarea>
+									<label for="exampleFormControlTextarea4"> Current y2(y):</label>
+									<textarea draggable="false" class="form-control" id="yvalue" rows="1"></textarea>
 								</div>
 							</div>
 						</div>
 					</div>
+					
 				</div>
 				<div class="col-md-4">
 					<h2 class="col-md-12"> Points </h2>
@@ -205,7 +238,7 @@
 						<ul id="pointtable" class="responsive-table">
 							<li class="table-header">
 								<div class="col points">Points</div>
-								<div class="col points">Values</div>
+								<!-- <div class="col points">Values</div> -->
 								<div class="col points">Image</div>
 							</li>
 						</ul>
