@@ -1,5 +1,6 @@
 plotDiv = document.getElementById('graph');
 var lg = document.getElementById("lolo");
+var crearInstanciaButton = document.getElementById("crearInstanciaButton");
 function loggerDiv(text) {
     var now = new Date();
     // let string = now.getHours()+':'+now.getMinutes()+':'+now.getMilliseconds();
@@ -76,6 +77,7 @@ function setULRS() {
 }
 
 function CrearInstancia(tipo) {
+    crearInstanciaButton.disabled = true;
     continuarBien('SEARCH');
     if (random.checked) {
         filename = Math.floor((Math.random() * 1000000) + 1);
@@ -105,12 +107,21 @@ function CrearInstancia(tipo) {
             Httpp.setRequestHeader("Content-Type", "application/json");
             Httpp.send(JSON.stringify({ string }));
         }
+        var aux = false;
         Httpp.onreadystatechange = function () {
             if (Httpp.readyState == 4 && Httpp.status == 200) {
                 (function (data) {
                     //console.log("mal");
                     getDatosIniciales();
+                    aux = true;
+                    crearInstanciaButton.disabled = false;
                 })(Httpp.responseText);
+                
+            }
+            console.log(Httpp.status);
+            if (Httpp.status == 0 && !aux) {
+                loggerDiv('Api is Offline');
+                crearInstanciaButton.disabled = false;
             }
         }
     }
@@ -155,7 +166,7 @@ async function zonaSeleccionada(data) {
 
 function save() {
 
-    comandoEstado('save ../temp/' + filename + '/save' + filename + '.state');
+    comandoEstado('save');
 
     setTimeout(() => {
         document.getElementById('download').click();
@@ -488,6 +499,7 @@ function checkState(state) {
         if (state[0] == 'REACHED_PRECISION') {
             rprecision.classList.add('actual');
             rprecision.innerHTML = 'REACHED PRECISION: ' + state[1];
+            paused = true;
         }
         if (state[0] == 'STAND_BY') {
             pause.classList.add('actual');
@@ -522,9 +534,11 @@ function getDatosIniciales() {
 
     Http.send();
     Http.onreadystatechange = function () {
+        var auxGetDatos = false;
         if (Http.readyState == 4 && Http.status == 200) {
             (function (data) {
                 //console.log("datafromgetdatos",data);
+                auxGetDatos = true;
                 array = getData(data);
                 document.cont = 1;
                 if (array.state) {
@@ -816,7 +830,7 @@ function getDatosIniciales() {
                             }
                         }
                     }
-                }, 3000);
+                }, 1500);
 
                 plotDiv.on('plotly_selected', (eventData) => {
                     console.log(plotDiv.data[3].x);
@@ -852,6 +866,9 @@ function getDatosIniciales() {
                 });
 
             })(Http.responseText);
+        }
+        if (Http.status == 0 && !auxGetDatos) {
+            loggerDiv('Api is Offline');
         }
     }
 }
