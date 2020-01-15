@@ -18,7 +18,7 @@ random = document.getElementById("random");
 loadFile = document.getElementById("loadFile");
 var maxf1 = document.getElementById("maxf1");
 var maxf2 = document.getElementById("maxf2");
-base = 'http://35.222.211.24:3000/tesis/';
+base = 'http://158.251.88.197:3000/tesis/';
 //filename = Math.floor((Math.random() * 100000) + 1);
 var filename = 123123;
 var f1 = document.querySelector("#f1");
@@ -150,7 +150,7 @@ async function zonaSeleccionada(data) {
 
     console.log(data);
     comandoEstado('continue');
-    Httppp.open("POST", "http://35.222.211.24:3000/tesis/seleccionarZona");
+    Httppp.open("POST", "http://158.251.88.197:3000/tesis/seleccionarZona");
     Httppp.setRequestHeader("Content-Type", "application/json");
     Httppp.send(JSON.stringify(data));
     Httppp.onreadystatechange = function () {
@@ -309,7 +309,7 @@ function comandoEstado(comando) {
         }, 7000);
     }
 
-    Httpp.open("POST", "http://35.222.211.24:3000/tesis/comando");
+    Httpp.open("POST", "http://158.251.88.197:3000/tesis/comando");
     Httpp.setRequestHeader("Content-Type", "application/json");
     let data = { comando, filename };
     Httpp.send(JSON.stringify(data));
@@ -489,12 +489,12 @@ function checkState(state) {
         if (state[0] == 'SEARCH') {
             search.classList.add('actual');
             cont.classList.add('actual');
-            rprecision.innerHTML = 'PRESICION: ' + state[1];
+            rprecision.innerHTML = 'PRECISION: ' + state[1];
         }
         if (state[0] == 'RPM') {
             fsearch.classList.add('actual');
             cont.classList.add('actual');
-            rprecision.innerHTML = 'PRESICION: ' + state[1];
+            rprecision.innerHTML = 'PRECISION: ' + state[1];
         }
         if (state[0] == 'REACHED_PRECISION') {
             rprecision.classList.add('actual');
@@ -749,7 +749,7 @@ function getDatosIniciales() {
                                     addPointToList(Math.floor(x * 100) / 100 + ';' + Math.floor(y * 100) / 100);
 
 
-                                    Httpp.open("POST", "http://35.222.211.24:3000/tesis/focus");
+                                    Httpp.open("POST", "http://158.251.88.197:3000/tesis/focus");
                                     Httpp.setRequestHeader("Content-Type", "application/json");
                                     let data = { x, y, filename };
                                     Httpp.send(JSON.stringify(data));
